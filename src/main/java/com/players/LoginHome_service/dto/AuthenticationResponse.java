@@ -4,10 +4,8 @@ import com.players.LoginHome_service.model.enums.UserRole;
 import lombok.Data;
 
 @Data
-public class UserDTO {
-    //to store information of new user created
+public class AuthenticationResponse {
+    private String token;
     private Long id;
-    private String email;
-    private String name;
     private UserRole userRole;
 }

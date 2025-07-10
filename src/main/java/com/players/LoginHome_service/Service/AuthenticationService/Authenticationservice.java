@@ -1,5 +1,6 @@
-package com.players.LoginHome_service.AuthenticationService;
+package com.players.LoginHome_service.Service.AuthenticationService;
 
+import com.players.LoginHome_service.dto.AuthenticationResponse;
 import com.players.LoginHome_service.dto.SignUpRequest;
 import com.players.LoginHome_service.dto.UserDTO;
 import com.players.LoginHome_service.model.Entity.User;
@@ -10,11 +11,12 @@ import jakarta.persistence.EntityExistsException;
 import org.hibernate.query.sqm.EntityTypeException;
 import org.hibernate.service.spi.InjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
+//service for creating admin and customer accounts
 @Service
 public class Authenticationservice {
     @Autowired
@@ -48,4 +50,18 @@ public class Authenticationservice {
     User userCreated=userRepo.save(u);
     return userCreated.getUserDTO();
   }
+
+
+    public AuthenticationResponse authenticateLoggedInUser(String username,String token) {
+
+        AuthenticationResponse reponse=new AuthenticationResponse();
+        Optional<User> u=userRepo.findFirstByEmail(username);
+        if(u.isPresent()){
+            reponse.setId(u.get().getUserid());
+            reponse.setToken(token);
+            reponse.setUserRole(u.get().getUserRole());
+        }
+
+        return reponse;
+    }
 }

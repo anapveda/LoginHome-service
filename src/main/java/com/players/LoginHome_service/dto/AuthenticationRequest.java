@@ -3,9 +3,7 @@ package com.players.LoginHome_service.dto;
 import lombok.Data;
 
 @Data
-public class SignUpRequest {
-    //to fetch details of new user
+public class AuthenticationRequest {
     private String email;
-    private String name;
     private String password;
 }
