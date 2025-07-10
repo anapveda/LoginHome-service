@@ -35,7 +35,6 @@ public class AuthenticationController {
     @Autowired
     jwtUtil jwt;
 
-    @Autowired
 
     @PostMapping("/signUp")
     public ResponseEntity<?> signUpUser(@RequestBody SignUpRequest signUpRequest){
