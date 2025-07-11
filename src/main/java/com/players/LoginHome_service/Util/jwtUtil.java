@@ -3,30 +3,39 @@ package com.players.LoginHome_service.Util;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class jwtUtil {
-    private final Key jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
     private final long jwtExpirationMs = 1000 * 60 * 60 * 10; // 10 hours
+
 
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(jwtSecret)
+                .signWith(getSignKey(),SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    private Key getSignKey() {
+        byte [] keyBytes= Decoders.BASE64.decode("0928309823098409840928340928340982309482093840923840980923848");
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(jwtSecret)
+                .setSigningKey(getSignKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -44,7 +53,7 @@ public class jwtUtil {
 
     private boolean isTokenExpired(String token) {
         Date expiration = Jwts.parserBuilder()
-                .setSigningKey(jwtSecret)
+                .setSigningKey(getSignKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
