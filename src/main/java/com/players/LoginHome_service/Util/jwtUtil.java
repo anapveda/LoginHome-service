@@ -71,7 +71,6 @@ public class jwtUtil {
         return expiration.before(new Date());
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(),userDetails);
-    }
+
+
 }

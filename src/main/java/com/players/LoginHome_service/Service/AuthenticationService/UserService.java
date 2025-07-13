@@ -1,5 +1,6 @@
 package com.players.LoginHome_service.Service.AuthenticationService;
 
+import com.players.LoginHome_service.model.Entity.User;
 import com.players.LoginHome_service.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ public class UserService{
     @Autowired
     UserRepo userRepo;
 
+
     public UserDetailsService userDetailsService(){
         return new UserDetailsService() {
             @Override
@@ -24,4 +26,7 @@ public class UserService{
         };
     }
 
+    public User findByEmail(String email) {
+        return new User();
+    }
 }

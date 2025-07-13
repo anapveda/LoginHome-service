@@ -7,6 +7,7 @@ import com.players.LoginHome_service.dto.AuthenticationRequest;
 import com.players.LoginHome_service.dto.AuthenticationResponse;
 import com.players.LoginHome_service.dto.SignUpRequest;
 import com.players.LoginHome_service.dto.UserDTO;
+import com.players.LoginHome_service.model.Entity.User;
 import jakarta.persistence.EntityExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -74,8 +78,11 @@ public class AuthenticationController {
        }catch(BadCredentialsException e){
            throw new BadCredentialsException("Incorrect email or password");
        }
+       User user = userService.findByEmail(request.getEmail());
        UserDetails userDetails=userService.userDetailsService().loadUserByUsername(request.getEmail());
-       String token=jwt.generateToken(userDetails);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userRole", request.getUserRole());
+        String token=jwt.generateToken(claims,userDetails);
        AuthenticationResponse response=authenticationservice.authenticateLoggedInUser(userDetails.getUsername(),token);
        return ResponseEntity.ok(response);
 
