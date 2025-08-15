@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,11 +89,22 @@ public class UserController {
         return ResponseEntity.ok(locationDTO);
     }
     @PutMapping("/users/{id}/location")
-    public ResponseEntity<String> updateLocation(@PathVariable long id, @RequestBody LocationDTO dto) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        user.setLatitude(dto.getLatitude());
-        user.setLongitude(dto.getLongitude());
-        userRepository.save(user);
+    public ResponseEntity<String> updateLocation(@PathVariable long id, @RequestBody LocationDTO dto,Principal principal) {
+        User loggedInUser = userRepository.findFirstByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check if logged-in user is updating their own record
+        System.out.println(loggedInUser.getUserid()+" "+id);
+        if (loggedInUser.getUserid()!=id) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("You can only update your own location");
+        }
+
+        // Update location
+        loggedInUser.setLatitude(dto.getLatitude());
+        loggedInUser.setLongitude(dto.getLongitude());
+        userRepository.save(loggedInUser);
+
         return ResponseEntity.ok("Location updated successfully");
     }
 
