@@ -27,17 +27,17 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthenticationController {
-    @Autowired
-    Authenticationservice authenticationservice;
+public class UserController {
+
 
     @Autowired
     AuthenticationManager authenticationManager;
 
     @Autowired
     UserService userService;
+
     @Autowired
-    jwtUtil jwt;
+    Authenticationservice authenticationservice;
 
 
     @PostMapping("/signUp")
@@ -78,14 +78,11 @@ public class AuthenticationController {
        }catch(BadCredentialsException e){
            throw new BadCredentialsException("Incorrect email or password");
        }
-       User user = userService.findByEmail(request.getEmail());
-       UserDetails userDetails=userService.userDetailsService().loadUserByUsername(request.getEmail());
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userRole", request.getUserRole());
-        String token=jwt.generateToken(claims,userDetails);
-       AuthenticationResponse response=authenticationservice.authenticateLoggedInUser(userDetails.getUsername(),token);
-       return ResponseEntity.ok(response);
+
+       return userService.validateAndGenerateToken(request.getEmail());
 
     }
+
+
 
 }

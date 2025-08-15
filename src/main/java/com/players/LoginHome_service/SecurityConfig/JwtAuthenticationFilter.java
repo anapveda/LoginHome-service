@@ -43,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String jwtToken;
             final String username;
        /*Check if Header is Present and Starts with “Bearer ”*/
+            System.out.println(authHeader);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 System.out.println("JWT token is intercepted");
                 filterChain.doFilter(request, response);

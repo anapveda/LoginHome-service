@@ -28,6 +28,8 @@ public class User implements UserDetails {
     private String name;
     private String password;
     private UserRole userRole;
+    private Double latitude;
+    private Double longitude;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
