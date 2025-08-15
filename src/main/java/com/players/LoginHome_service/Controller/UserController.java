@@ -3,11 +3,9 @@ package com.players.LoginHome_service.Controller;
 import com.players.LoginHome_service.Service.AuthenticationService.Authenticationservice;
 import com.players.LoginHome_service.Service.AuthenticationService.UserService;
 import com.players.LoginHome_service.Util.jwtUtil;
-import com.players.LoginHome_service.dto.AuthenticationRequest;
-import com.players.LoginHome_service.dto.AuthenticationResponse;
-import com.players.LoginHome_service.dto.SignUpRequest;
-import com.players.LoginHome_service.dto.UserDTO;
+import com.players.LoginHome_service.dto.*;
 import com.players.LoginHome_service.model.Entity.User;
+import com.players.LoginHome_service.repository.UserRepo;
 import jakarta.persistence.EntityExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,10 +15,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +33,8 @@ public class UserController {
 
     @Autowired
     Authenticationservice authenticationservice;
+    @Autowired
+    UserRepo userRepository;
 
 
     @PostMapping("/signUp")
@@ -82,6 +79,23 @@ public class UserController {
        return userService.validateAndGenerateToken(request.getEmail());
 
     }
+    @GetMapping("/users/{id}/location")
+    public ResponseEntity<LocationDTO> getUserLocation(@PathVariable long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        LocationDTO locationDTO = new LocationDTO();
+        locationDTO.setLatitude(user.getLatitude());
+        locationDTO.setLongitude(user.getLongitude());
+        return ResponseEntity.ok(locationDTO);
+    }
+    @PutMapping("/users/{id}/location")
+    public ResponseEntity<String> updateLocation(@PathVariable long id, @RequestBody LocationDTO dto) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setLatitude(dto.getLatitude());
+        user.setLongitude(dto.getLongitude());
+        userRepository.save(user);
+        return ResponseEntity.ok("Location updated successfully");
+    }
+
 
 
 
