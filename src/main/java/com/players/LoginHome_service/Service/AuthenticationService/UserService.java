@@ -43,6 +43,22 @@ public class UserService{
         };
     }
 
+
+    public ResponseEntity<AuthenticationResponse> validateAndGenerateToken(String email) {
+        UserDetails userDetails=userDetailsService().loadUserByUsername(email);
+        String role= userDetails.getAuthorities().toString().replace("[","").replace("]","");
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userRole", role.replace("ROLE_",""));
+        System.out.println(claims);
+        String token=jwt.generateToken(claims,userDetails);
+        System.out.println(token);
+        AuthenticationResponse response=authenticationservice.authenticateLoggedInUser(userDetails.getUsername(),token);
+        return ResponseEntity.ok(response);
+
+
+
+    }
+}
 //    public User findByEmail(String email) {
 //        Optional<User> u=userRepo.findFirstByEmail(email);
 //        User user=new User();
@@ -53,7 +69,7 @@ public class UserService{
 //
 //        return user;
 //    }
-    //       //returns userDetials object no DB call is made here
+//       //returns userDetials object no DB call is made here
 //       UserDetails userDetails=userService.userDetailsService().loadUserByUsername(request.getEmail());
 //        User user = userService.findByEmail(request.getEmail());
 //        Map<String, Object> claims = new HashMap<>();
@@ -62,15 +78,3 @@ public class UserService{
 //        String token=jwt.generateToken(claims,userDetails);
 //       AuthenticationResponse response=authenticationservice.authenticateLoggedInUser(userDetails.getUsername(),token);
 //       return ResponseEntity.ok(response);
-        public ResponseEntity<AuthenticationResponse> validateAndGenerateToken(String email) {
-        UserDetails userDetails=userDetailsService().loadUserByUsername(email);
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userRole", userDetails.getAuthorities());
-        String token=jwt.generateToken(claims,userDetails);
-       AuthenticationResponse response=authenticationservice.authenticateLoggedInUser(userDetails.getUsername(),token);
-       return ResponseEntity.ok(response);
-
-
-
-    }
-}

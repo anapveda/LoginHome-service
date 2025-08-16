@@ -20,7 +20,7 @@ public class jwtUtil {
 
     private final long jwtExpirationMs = 1000 * 60 * 60 * 10; // 10 hours
 
-
+    private static final String secret="0928309823098409840928340928340982309482093840923840980923848";
     public String generateToken(Map<String,Object> extraClaims,UserDetails userDetails) {
         return Jwts.builder().setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
@@ -29,18 +29,17 @@ public class jwtUtil {
                 .signWith(getSignKey(),SignatureAlgorithm.HS256)
                 .compact();
     }
-   private <T> T extractClaims(String token, Function<Claims,T> claimsResolvers){
+    private <T> T extractClaims(String token, Function<Claims,T> claimsResolvers){
         final Claims claims=extractAllClaims(token);
         return claimsResolvers.apply(claims);
 
-   }
-   private Claims extractAllClaims(String token){
+    }
+    private Claims extractAllClaims(String token){
         return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
-   }
+    }
 
     private Key getSignKey() {
-        byte [] keyBytes= Decoders.BASE64.decode("0928309823098409840928340928340982309482093840923840980923848");
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     public String getUsernameFromToken(String token) {

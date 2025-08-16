@@ -10,6 +10,7 @@ import jakarta.persistence.EntityExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -80,27 +82,22 @@ public class UserController {
        return userService.validateAndGenerateToken(request.getEmail());
 
     }
-    @GetMapping("/users/{id}/location")
-    public ResponseEntity<LocationDTO> getUserLocation(@PathVariable long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    @GetMapping("/user/location")
+    public ResponseEntity<LocationDTO> getUserLocation(Authentication authentication) {
+
+        String emailFromToken = authentication.getName(); // comes from JWT "sub" claim
+        User loggedInUser = userRepository.findFirstByEmail(emailFromToken)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(loggedInUser.getUserid()).orElseThrow(() -> new RuntimeException("User not found"));
         LocationDTO locationDTO = new LocationDTO();
         locationDTO.setLatitude(user.getLatitude());
         locationDTO.setLongitude(user.getLongitude());
         return ResponseEntity.ok(locationDTO);
     }
-    @PutMapping("/users/{id}/location")
-    public ResponseEntity<String> updateLocation(@PathVariable long id, @RequestBody LocationDTO dto,Principal principal) {
+    @PutMapping("/user/location")
+    public ResponseEntity<String> updateLocation(@RequestBody LocationDTO dto,Principal principal) {
         User loggedInUser = userRepository.findFirstByEmail(principal.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Check if logged-in user is updating their own record
-        System.out.println(loggedInUser.getUserid()+" "+id);
-        if (loggedInUser.getUserid()!=id) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("You can only update your own location");
-        }
-
-        // Update location
         loggedInUser.setLatitude(dto.getLatitude());
         loggedInUser.setLongitude(dto.getLongitude());
         userRepository.save(loggedInUser);
